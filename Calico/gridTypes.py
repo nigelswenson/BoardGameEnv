@@ -21,8 +21,7 @@ class HexGrid:
             i = -k
             j = k
             for value in sublist:
-                if value is not None:
-                    d2[i,j] = value
+                d2[i,j] = value
                 i+=1
             k+=1
         return d2
@@ -107,7 +106,9 @@ class HexGrid:
         else:
             return [self.data[a[0],a[1]] for a in points]
             
-        
+    def __iter__(self):
+        return iter(self.data.items())
+    
         
 
 a = HexGrid([[1],[2,3],[None,4]])
@@ -122,3 +123,6 @@ print('j: 2 :',a[:,2])
 print('K rows')
 print('k: 0 :',a['k',0])
 print('k: 1 :',a['k',1])
+
+for i in a:
+    print(i, type(i))
