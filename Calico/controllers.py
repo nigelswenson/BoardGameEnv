@@ -37,7 +37,8 @@ class humanInput:
     
 class randomSelection:
     def selectTile(self, store, boardstate):
-        return store.selectTile(np.random.randint(4))
+        return store.selectTile(np.random.randint(3))
     
     def placeTile(self, tiles, board):
-        return np.random.randint(3), np.random.choice(board.openSpaces)
+        board_ind = np.random.choice(range(len(board.openSpaces)))
+        return np.random.randint(3), board.openSpaces[board_ind]

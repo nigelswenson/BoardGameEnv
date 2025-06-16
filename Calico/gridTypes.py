@@ -1,5 +1,5 @@
 import numpy as np
-
+import torch
 class HexGrid:
     def __init__(self, data):
         # information is stored in a dictionary
@@ -105,24 +105,65 @@ class HexGrid:
                 return self.data[i,j]
         else:
             return [self.data[a[0],a[1]] for a in points]
-            
+
+    def __setitem__(self, key, value):
+        self.data[key[0],key[1]] = value
+
     def __iter__(self):
         return iter(self.data.items())
     
-        
+    def getAdjacent(self, index, pad=False):
+        # returns a list of all the cells directly touching the cell provided
+        if len(index) != 2:
+            raise IndexError('Must provide index as (i,j) coordinate')
+        ajacency = []
+        indicies_to_check = [(index[0],index[1]-1),
+                             (index[0],index[1]+1),
+                             (index[0]-1,index[1]),
+                             (index[0]+1,index[1]),
+                             (index[0]-1,index[1]+1),
+                             (index[0]+1,index[1]-1)]
+        datakeys = self.data.keys()
+        for new_ind in indicies_to_check:
+            if new_ind in datakeys:
+                ajacency.append((new_ind,self.data[new_ind]))
+            elif pad:
+                ajacency.append((new_ind,None))
+        return ajacency
 
-a = HexGrid([[1],[2,3],[None,4]])
+    def shape(self):
+        keys = np.array(list(self.data.keys()))
+        return [min(keys[:,0]),max(keys[:,0]),min(keys[:,1]),max(keys[:,1])]
 
-print('i rows')
-print('i: -1 :',a[-1,:])
-print('i: 0 :',a[0,:])
-print('J rows')
-print('j: 0 :',a[:,0])
-print('j: 1 :',a[:,1])
-print('j: 2 :',a[:,2])
-print('K rows')
-print('k: 0 :',a['k',0])
-print('k: 1 :',a['k',1])
+    def toTensor(self):
+        board = []
+        neighbors = []
+        for location, b in self.data.items():
+            if type(b) == Tile:
+                board.append(b.toList())
+            elif b is None:
+                board.append([8,8])
+            else:
+                board.append([7,7])
+            neighbor_hood = self.getAdjacent(location,True)
+            temp = []
+            for l, n in neighbor_hood:
+                if type(n) == Tile:
+                    temp.append(n.toList())
+                elif n is None:
+                    temp.append([8, 8])
+                else:
+                    temp.append([7,7])
+            neighbors.append(temp)
+        return torch.tensor(board,dtype=torch.float32), torch.tensor(neighbors,dtype=torch.float32)
 
-for i in a:
-    print(i, type(i))
+class Tile:
+    def __init__(self, params):
+        self.pattern = params['pattern']
+        self.color = params['color']
+
+    def __str__(self):
+        return "".join(['pattern: ', str(self.pattern),' color: ', str(self.color)])
+    
+    def toList(self):
+        return [self.pattern, self.color]
