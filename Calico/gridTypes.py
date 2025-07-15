@@ -157,6 +157,28 @@ class HexGrid:
             neighbors.append(temp)
         return torch.tensor(board,dtype=torch.float32), torch.tensor(neighbors,dtype=torch.float32)
 
+    def toList(self):
+        board = []
+        neighbors = []
+        for location, b in self.data.items():
+            if type(b) == Tile:
+                board.append(b.toList())
+            elif b is None:
+                board.append([8,8])
+            else:
+                board.append([7,7])
+            neighbor_hood = self.getAdjacent(location,True)
+            temp = []
+            for l, n in neighbor_hood:
+                if type(n) == Tile:
+                    temp.append(n.toList())
+                elif n is None:
+                    temp.append([8, 8])
+                else:
+                    temp.append([7,7])
+            neighbors.append(temp)
+        return board, neighbors
+
 class Tile:
     def __init__(self, params):
         self.pattern = params['pattern']

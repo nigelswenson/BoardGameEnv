@@ -116,7 +116,11 @@ class Store:
     def __init__(self):
         with open('CalicoTileset.json') as jsonFile:
             temp = json.load(jsonFile)
-        self.tileCollection = [Tile(t1) for t1 in temp]
+        self.tileCollection = []
+        for t1 in temp:
+            self.tileCollection.append(Tile(t1))
+            self.tileCollection.append(Tile(t1))
+            self.tileCollection.append(Tile(t1))
         self.backupTiles = copy.deepcopy(self.tileCollection)
         np.random.shuffle(self.tileCollection)
         self.openTiles = [self.tileCollection.pop() for _ in range(3)]
