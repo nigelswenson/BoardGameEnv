@@ -125,7 +125,8 @@ class Store:
         np.random.shuffle(self.tileCollection)
         self.openTiles = [self.tileCollection.pop() for _ in range(3)]
         
-
+    def __getitem__(self, item):
+            return self.openTiles[item]
     def selectTile(self, ind):
         try:
             new_tile = self.tileCollection.pop()
@@ -155,8 +156,10 @@ class Player:
 
     def takeTurn(self, store):
         # needs to grab a tile. Logic for this can be handled by 
+        # print('calling select tile')
         selected = self.controller.selectTile(store,self.board)
         self.tiles.append(selected)
+        # print('calling place tile')
         tile, placement = self.controller.placeTile(self.tiles, self.board)
         temp = self.tiles.pop(tile)
         self.board.placeTile(temp,placement)
@@ -203,7 +206,9 @@ class GameManger:
     
     def takeTurn(self):
         for player in self.players:
-            player.takeTurn(self.store, self.catsUsed)
+            player.takeTurn(self.store)
+        if len(self.players) == 1:
+            self.store.selectTile(np.random.randint(0,3))
         self.turnsLeft -= 1
 
     def runGame(self):
@@ -215,3 +220,6 @@ class GameManger:
         print(f'All Player scores')
         for i,p in enumerate(scores):
             print(f'Player {i+1}: {p} points')
+
+class PyGameManager(GameManger):
+    pass
